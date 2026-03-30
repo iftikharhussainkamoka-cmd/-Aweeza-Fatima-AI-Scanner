@@ -2,45 +2,48 @@ import streamlit as st
 import pytesseract
 from PIL import Image
 
-# Tesseract Configuration
+# Tesseract Path
 pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
 
-# Page Setup
-st.set_page_config(page_title="AI Multi-Lang Scanner", page_icon="🔍", layout="centered")
+# Page Config
+st.set_page_config(page_title="AI Smart Scanner", page_icon="🔍")
+
+# Optimization: Taake app crash na ho
+@st.cache_resource
+def get_tesseract_version():
+    try:
+        return pytesseract.get_tesseract_version()
+    except:
+        return "Unknown"
 
 st.title("🔍 AI Smart Mobile Scanner")
-st.subheader("Scan English & Urdu text instantly")
 
-# Language Selection Dropdown
+# Language Selection
 lang_option = st.selectbox("Select Language / Zaban chunein:", ("English", "Urdu"))
 lang_code = 'eng' if lang_option == "English" else 'urd'
 
-st.markdown("---")
-
-# Image Upload
 uploaded_file = st.file_uploader("Upload an image...", type=['jpg', 'png', 'jpeg'])
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", use_container_width=True)
-    
-    st.write(f"### Scanning in {lang_option}...")
-    
     try:
-        extracted_text = pytesseract.image_to_string(image, lang=lang_code)
+        image = Image.open(uploaded_file)
+        st.image(image, caption="Uploaded Image", use_container_width=True)
         
-        if extracted_text.strip():
-            st.success("Scanning Complete!")
-            if lang_code == 'urd':
-                st.markdown(f'<p style="text-align: right; font-size: 22px; direction: rtl; background-color: #f0f2f6; padding: 20px; border-radius: 10px; color: black;">{extracted_text}</p>', unsafe_allow_html=True)
-            else:
-                st.text_area("Extracted Text:", extracted_text, height=300)
+        with st.spinner('Scanning... Please wait'):
+            # OCR Process
+            text = pytesseract.image_to_string(image, lang=lang_code)
             
-            st.download_button("Download Text", extracted_text, file_name="scanned_text.txt")
-        else:
-            st.warning("No text detected. Try a clearer image.")
+            if text.strip():
+                st.success("Done!")
+                if lang_code == 'urd':
+                    st.markdown(f'<p style="text-align: right; font-size: 22px; direction: rtl; background-color: #f0f2f6; padding: 15px; border-radius: 5px; color: black;">{text}</p>', unsafe_allow_html=True)
+                else:
+                    st.text_area("Extracted Text:", text, height=250)
+                
+                st.download_button("Download Text", text, file_name="scan.txt")
+            else:
+                st.warning("No text found. Make sure the image is clear.")
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error: {e}. Try refreshing the page.")
 
-st.markdown("---")
-st.caption("Developed by Aweeza Fatima | Software Engineering Project")
+st.caption("Developed by Aweeza Fatima")
