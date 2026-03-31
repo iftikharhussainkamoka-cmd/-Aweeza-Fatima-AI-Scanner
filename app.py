@@ -3,12 +3,11 @@ import pytesseract
 from PIL import Image
 
 # Page Configuration
-st.set_page_config(page_title="AI Halal Scanner", page_icon="🌙")
+st.set_page_config(page_title="AI Halal Scanner")
 
-st.title("🌙 AI Halal Verification Scanner")
-st.write("Upload a photo of product ingredients to check for Haram/Mushkook elements.")
-
-# 1. Haram & Mushkook Ingredients Database
+st.title("AI Halal Verification Scanner")
+st.markdown("##### *Automated AI Analysis for Halal Compliance*")
+st.write("Upload a photo...")
 haram_ingredients = [
     "e120", "e441", "gelatin", "lard", "pepsin", 
     "shortening", "bacon", "pork", "alcohol", "carmine"
